@@ -68,12 +68,9 @@ class WaterFeeder:
         # self.rfid_thread.start()
 
         while True:
-            reservoir_distance = self.reservoir_water_level_sensor.get_distance()
-            if reservoir_distance is not None:
-                print(f"Distance: {reservoir_distance} mm")
-            else:
-                print(f"No data")
-            time.sleep(5)
+            distance = self.reservoir_water_level_sensor.get_distance()
+            print(f"Distance: {distance} mm")
+
 
     def on_message(self, client, userdata, message):
         topic = message.topic
@@ -114,7 +111,7 @@ if __name__ == "__main__":
     # weight_bowl = readWeight(iic_mode=0x03, iic_address=0x64, calibration_value=223.7383270263672)
     # weight_bowl.begin()
     # rfid_module = RFIDModule(server=backendAddr,water_weight=weight_bowl)
-    reservoir_water_level_sensor = UltrasonicSensorModule()
+    reservoir_water_level_sensor = UltrasonicSensorModule(trig_pin=15, echo_pin=14, speed_of_sound=34300)
     # Note: The ID or sensor_location must align with Remote API defined. For more info, please visit: https://github.com/xosadmin/cits5506/blob/main/routes.py
     
     try:
