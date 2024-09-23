@@ -4,6 +4,7 @@ Author:
 Description: Measure reservoir water level by sending audio signal from top of the reservoir to water surface.
 Result: JSN SRO4T 2.0 and HC-SR04 minimum measurement is 200mm which is not ideal for our design.
 Action: Team decided to use 2 capactive level sensor.
+Status: Abanadoned
 References: https://leanpub.com/rpcultra/read#ultrasonic
 """
 import RPi.GPIO as GPIO

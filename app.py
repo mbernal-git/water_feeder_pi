@@ -1,7 +1,7 @@
 import os
 import time
 import threading
-from modules import UltrasonicSensorModule
+from modules import WaterLevelModule, ValveModule
 
 class WaterFeeder:
     def __init__(self,
@@ -13,7 +13,8 @@ class WaterFeeder:
                 # wifi_conn,
                 # httpmodule,
                 # readWeight,
-                reservoir_water_level_sensor_arg
+                reservoir_water_level_sensor,
+                reservoir_valve
             ):
         # self.waste_water_level_sensor = waste_water_level_sensor
         # self.turbidity_sensor = turbidity_sensor
@@ -23,7 +24,8 @@ class WaterFeeder:
         # self.wifi_conn = wifi_conn
         # self.httpmodule = httpmodule
         # self.readWeight = readWeight
-        self.reservoir_water_level_sensor = reservoir_water_level_sensor_arg
+        self.reservoir_water_level_sensor = reservoir_water_level_sensor
+        self.reservoir_valve = reservoir_valve
         self.monitoring = True
         # self.get_sensor_data()
 
@@ -31,7 +33,7 @@ class WaterFeeder:
         # self.mqtt_client.client.on_message = self.on_message
 
     def get_sensor_data(self):
-        waste_water_level = self.waste_water_level_sensor.get_water_level()
+        waste_water_level = self.waste_water_level_sensor.monitor_water_level()
         turbidity_value = self.turbidity_sensor.read_turbidity()
         weight_value = self.readWeight.read_weight()
         sensor_location = self.waste_water_level_sensor.sensor_location
@@ -66,10 +68,7 @@ class WaterFeeder:
         # self.rfid_thread = threading.Thread(target=self.rfid_module.read_rfid)
         # self.rfid_thread.daemon = True
         # self.rfid_thread.start()
-
-        while True:
-            distance = self.reservoir_water_level_sensor.get_distance()
-            print(f"Distance: {distance} mm")
+        print(self.reservoir_water_level_sensor.get_water_level())
 
 
     def on_message(self, client, userdata, message):
@@ -111,7 +110,8 @@ if __name__ == "__main__":
     # weight_bowl = readWeight(iic_mode=0x03, iic_address=0x64, calibration_value=223.7383270263672)
     # weight_bowl.begin()
     # rfid_module = RFIDModule(server=backendAddr,water_weight=weight_bowl)
-    reservoir_water_level_sensor = UltrasonicSensorModule(trig_pin=15, echo_pin=14, speed_of_sound=34300)
+    reservoir_water_level_sensor = WaterLevelModule(in_pin=14, mode_pin=15, sensor_location="reservoir")
+    reservoir_valve = ValveModule(pin=16)
     # Note: The ID or sensor_location must align with Remote API defined. For more info, please visit: https://github.com/xosadmin/cits5506/blob/main/routes.py
     
     try:
@@ -119,13 +119,14 @@ if __name__ == "__main__":
             # mqtt_client=mqtt_client,
             # waste_water_level_sensor=waste_water_level_sensor,
             # turbidity_sensor=turbidity_sensor,
-            # reservoir_valve=reservoir_valve,
+            reservoir_valve=reservoir_valve,
             # rfid_module=rfid_module,
             # wifi_conn=wifi_conn,
             # httpmodule=httpmodule,
             # readWeight=weight_bowl,
-            reservoir_water_level_sensor_arg=reservoir_water_level_sensor,
+            reservoir_water_level_sensor=reservoir_water_level_sensor,
         )
+        water_feeder.reservoir_valve.open()
         water_feeder.start_monitoring()
 
         # while True:
