@@ -34,7 +34,7 @@ class WaterLevelModule:
 
   def get_water_level(self):
     if self.sensor_location == 'reservoir':
-      if not self.is_low():
+      if self.is_low():
         return "low"
       else:
         return "good"

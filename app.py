@@ -7,25 +7,25 @@ class WaterFeeder:
     def __init__(self,
                 # waste_water_level_sensor,
                 # turbidity_sensor,
-                # reservoir_valve,
+                reservoir_valve,
                 # rfid_module,
                 # mqtt_client,
                 # wifi_conn,
                 # httpmodule,
                 # readWeight,
                 reservoir_water_level_sensor,
-                reservoir_valve
+                bowl_valve,
             ):
         # self.waste_water_level_sensor = waste_water_level_sensor
         # self.turbidity_sensor = turbidity_sensor
-        # self.reservoir_valve = reservoir_valve
+        self.reservoir_valve = reservoir_valve
         # self.rfid_module = rfid_module
         # self.mqtt_client = mqtt_client
         # self.wifi_conn = wifi_conn
         # self.httpmodule = httpmodule
         # self.readWeight = readWeight
         self.reservoir_water_level_sensor = reservoir_water_level_sensor
-        self.reservoir_valve = reservoir_valve
+        self.bowl_valve = bowl_valve
         self.monitoring = True
         # self.get_sensor_data()
 
@@ -88,6 +88,7 @@ class WaterFeeder:
             else:
                 print(f"Unknown command received: {payload}")
 
+
     def cleanup(self):
         self.monitoring = False
         # if hasattr(self, 'turbidity_thread') and self.turbidity_thread.is_alive():
@@ -110,8 +111,10 @@ if __name__ == "__main__":
     # weight_bowl = readWeight(iic_mode=0x03, iic_address=0x64, calibration_value=223.7383270263672)
     # weight_bowl.begin()
     # rfid_module = RFIDModule(server=backendAddr,water_weight=weight_bowl)
-    reservoir_water_level_sensor = WaterLevelModule(in_pin=14, mode_pin=15, sensor_location="reservoir")
-    reservoir_valve = ValveModule(pin=16)
+    reservoir_water_level_sensor = WaterLevelModule(in_pin=15, mode_pin=16, sensor_location="reservoir")
+    reservoir_valve = ValveModule(pin=20, location="reservoir")
+    bowl_valve = ValveModule(pin=21, location="bowl")
+
     # Note: The ID or sensor_location must align with Remote API defined. For more info, please visit: https://github.com/xosadmin/cits5506/blob/main/routes.py
     
     try:
@@ -120,12 +123,14 @@ if __name__ == "__main__":
             # waste_water_level_sensor=waste_water_level_sensor,
             # turbidity_sensor=turbidity_sensor,
             reservoir_valve=reservoir_valve,
+            bowl_valve=bowl_valve,
             # rfid_module=rfid_module,
             # wifi_conn=wifi_conn,
             # httpmodule=httpmodule,
             # readWeight=weight_bowl,
-            reservoir_water_level_sensor=reservoir_water_level_sensor,
+            reservoir_water_level_sensor=reservoir_water_level_sensor
         )
+        water_feeder.bowl_valve.open()
         water_feeder.reservoir_valve.open()
         water_feeder.start_monitoring()
 
@@ -135,6 +140,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Exiting program...")
 
-    finally:
-        water_feeder.cleanup()
+    # finally:
+        # water_feeder.cleanup()
         # mqtt_client.disconnect()
